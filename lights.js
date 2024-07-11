@@ -6,3 +6,34 @@ function change_color() {
         elements[i].style.backgroundColor="blue";
     }
 }
+
+
+var clicked = false;
+
+function listen_to_channel() {
+    
+    elements = document.getElementById("listen");
+
+    if(clicked == false){
+    elements.style.backgroundColor="00FF00";
+    console.log("försöker toggla")
+    clicked = true;
+    }
+    else {
+        elements.style.backgroundColor="#e7e7e7";
+        clicked = false;
+    }
+     
+}
+
+
+function PTT() {
+    elements = document.getElementById("speak");
+    elements.style.backgroundColor="#FF0000";
+
+}
+
+function releasePTT() {
+    elements = document.getElementById("speak");
+    elements.style.backgroundColor="#e7e7e7"
+}
