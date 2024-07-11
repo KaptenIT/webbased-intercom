@@ -1,4 +1,4 @@
-let localStream;
+/* let localStream;
 
 document.getElementById("start").addEventListener("click", async () => {
     try {
@@ -7,7 +7,7 @@ document.getElementById("start").addEventListener("click", async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         localStream = stream;
         /*document.querySelector("audio").srcObject = stream;*/
-        document.getElementById("stream1").srcObject = stream;
+/*        document.getElementById("stream1").srcObject = stream;
         document.getElementById("stop").disabled = false;
         audioLevel(stream);
         calculateAudioLevels();
@@ -34,45 +34,158 @@ function releasePTT() {
     elements.style.backgroundColor="#e7e7e7"
     stream.audio.disabled();
 }
+*/
 
-function audioLevel(audioStream) {
-    var _mediaStream    = audioStream;
-    var _audioContext   = new AudioContext();
-    var _audioAnalyser  = [];
-    var _freqs          = [];
-    var audioLevels     = [0];
+// intercom.js
 
-    var _audioSource          = _audioContext.createMediaStreamSource(_mediaStream);
-    var _audioGain1           = _audioContext.createGain();
-    var _audioChannelSplitter = _audioContext.createChannelSplitter(_audioSource.channelCount);
+const localAudio = document.getElementById('stream1');
+const remoteAudiosContainer = document.getElementById('remoteAudios') || document.createElement('div');
 
-    _audioSource.connect(_audioGain1);
-    _audioGain1.connect(_audioChannelSplitter);
-    _audioGain1.connect(_audioContext.destination);
+let localStream;
+let peerConnections = {};
+let serverConnection;
 
-    for (let i = 0; i < _audioSource.channelCount; i++) {
-        _audioAnalyser[i]                       = _audioContext.createAnalyser();
-        _audioAnalyser[i].minDecibels           = -100;
-        _audioAnalyser[i].maxDecibels           = 0;
-        _audioAnalyser[i].smoothingTimeConstant = 0.8;
-        _audioAnalyser[i].fftSize               = 32;
-        _freqs[i]                               = new Uint8Array(_audioAnalyser[i].frequencyBinCount);
+const servers = {
+    iceServers: [
+        {
+            urls: 'stun:stun.l.google.com:19302' // STUN-server
+        }
+        // Lägg till TURN-server här om nödvändigt
+    ]
+};
 
-        _audioChannelSplitter.connect(_audioAnalyser[i], i, 0);
+async function start() {
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        localAudio.srcObject = localStream;
+
+        // Initiera WebSocket-anslutning till signaleringsservern
+        serverConnection = new WebSocket('ws://192.168.3.220:8080');
+        serverConnection.onmessage = event => {
+            const message = JSON.parse(event.data);
+            handleMessage(message);
+        };
+
+        serverConnection.onopen = () => {
+            createOfferForNewPeer();
+        };
+    } catch (err) {
+       console.error('Error accessing media devices.', err);
+       console.log("errors found")
     }
-
-    function calculateAudioLevels()  {
-        setTimeout(() => {
-            for (let channelI = 0; channelI < _audioAnalyser.length; channelI++) {
-                _audioAnalyser[channelI].getByteFrequencyData(_freqs[channelI]);
-                let value = 0;
-                for (let freqBinI = 0; freqBinI < _audioAnalyser[channelI].frequencyBinCount; freqBinI++) {
-                    value = Math.max(value, _freqs[channelI][freqBinI]);
-                }
-                audioLevels[channelI] = value / 256;
-                console.log(audioLevels[channelI]);
-            }
-            requestAnimationFrame(calculateAudioLevels.bind(this));
-        }, 1000 / 15); // Max 15fps — not more needed
 }
+
+start();
+
+function createPeerConnection(peerId) {
+    const peerConnection = new RTCPeerConnection(servers);
+
+    localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+    });
+
+    peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+            sendToServer({ type: 'ice-candidate', candidate: event.candidate, peerId: peerId });
+        }
+    };
+
+    peerConnection.ontrack = event => {
+        let remoteAudio = document.getElementById(`remoteAudio_${peerId}`);
+        if (!remoteAudio) {
+            remoteAudio = document.createElement('audio');
+            remoteAudio.id = `remoteAudio_${peerId}`;
+            remoteAudio.autoplay = true;
+            remoteAudiosContainer.appendChild(remoteAudio);
+        }
+        remoteAudio.srcObject = event.streams[0];
+    };
+
+    return peerConnection;
+}
+
+function sendToServer(message) {
+    serverConnection.send(JSON.stringify(message));
+}
+
+function handleMessage(message) {
+    const peerId = message.peerId;
+    if (message.type === 'offer') {
+        handleOffer(message.offer, peerId);
+    } else if (message.type === 'answer') {
+        handleAnswer(message.answer, peerId);
+    } else if (message.type === 'ice-candidate') {
+        handleIceCandidate(message.candidate, peerId);
+    }
+}
+
+async function handleOffer(offer, peerId) {
+    const peerConnection = createPeerConnection(peerId);
+    peerConnections[peerId] = peerConnection;
+
+    try {
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        sendToServer({ type: 'answer', answer: answer, peerId: peerId });
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function handleAnswer(answer, peerId) {
+    const peerConnection = peerConnections[peerId];
+    if (peerConnection) {
+        try {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        } catch (err) {
+            console.error(err);
+        }
+    }
+}
+
+async function handleIceCandidate(candidate, peerId) {
+    const peerConnection = peerConnections[peerId];
+    if (peerConnection) {
+        try {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+            console.error(err);
+        }
+    }
+}
+
+async function createOfferForNewPeer() {
+    const peerId = generateUniquePeerId(); // Replace with a unique ID for the new peer
+    const peerConnection = createPeerConnection(peerId);
+    peerConnections[peerId] = peerConnection;
+
+    try {
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        sendToServer({ type: 'offer', offer: offer, peerId: peerId });
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function generateUniquePeerId() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
+// Functions for PTT and other controls (example implementations)
+function PTT() {
+    // Handle Push-To-Talk functionality
+}
+
+function releasePTT() {
+    // Handle release of Push-To-Talk functionality
+}
+
+function listen_to_channel() {
+    // Handle listen functionality
+}
+
+function change_color() {
+    // Handle color change functionality
 }

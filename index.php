@@ -5,8 +5,6 @@
         <script src="lights.js"></script>
     </Head>
     <Body>
-    <button id="start">Start </button>
-    <button id="stop"> Stop</button>    
         <div class="controls">
             <button class="sidebutton" id="listen" onclick="listen_to_channel()">Listen</button>
             <div clas="centercolumn">
