@@ -27,13 +27,3 @@ function listen_to_channel() {
 }
 
 
-function PTT() {
-    elements = document.getElementById("speak");
-    elements.style.backgroundColor="#FF0000";
-
-}
-
-function releasePTT() {
-    elements = document.getElementById("speak");
-    elements.style.backgroundColor="#e7e7e7"
-}
