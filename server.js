@@ -1,5 +1,3 @@
-// server.js
-
 const WebSocket = require('websocket');
 
 const wss = new WebSocket.Server({ port: 8080 });

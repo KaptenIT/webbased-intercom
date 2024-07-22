@@ -1,0 +1,11 @@
+{
+  "name": "webbased-intercom",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "scripts": {
+      "devStart": "nodemon server.js"
+    },
+  }
+}

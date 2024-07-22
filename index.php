@@ -5,26 +5,12 @@
         <script src="lights.js"></script>
     </Head>
     <Body>
-        <div class="controls">
-            <button class="sidebutton" id="listen" onclick="listen_to_channel()">Listen</button>
-            <div clas="centercolumn">
-                <div class="lightbar">
-                    <span class="bulb" id="bulb-1"></span>
-                    <span class="bulb" id="bulb-2"></span>
-                    <span class="bulb" id="bulb-3"></span>
-                    <span class="bulb" id="bulb-4"></span>
-                    <span class="bulb" id="bulb-5"></span>
-                    <span class="bulb" id="bulb-6"></span>
-                    <span class="bulb" id="bulb-7"></span>
-                    <span class="bulb" id="bulb-8"></span>
-                </div>
-                <audio id="stream1" autoplay></audio>
-                <input type="text" class="talent-text" readonly value="Talent"></input>
-                <input type="range" min="1" max="100" value="50" class="volume-slider" id="Volume">
-            </div>
-            <button class="sidebutton" id="speak" onmousedown="PTT()" onmouseup="releasePTT()">Speak</button>
-        </div>
-        <button id="change_color" onclick="change_color()">change color</button>
-        <script src="intercom.js"></script>
+    <h1> Welcome to web based intercom!</h1>
+    <form action="intercom.php" method="POST">
+        <input type="text" placeholder="type username" name="username"></input>
+        <input type="text" placeholder="type eventstring" name="event"></input> 
+        <button type="submit">Submit</button>
+    </form>
+    <h5>This is under construction! Functions may vary</h5>
     </Body>
 </HTML>

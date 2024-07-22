@@ -1,43 +1,7 @@
-/* let localStream;
-
-document.getElementById("start").addEventListener("click", async () => {
-    try {
-        document.getElementById("start").disabled = true;
-        console.log("aktiverar mic");
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        localStream = stream;
-        /*document.querySelector("audio").srcObject = stream;*/
-/*        document.getElementById("stream1").srcObject = stream;
-        document.getElementById("stop").disabled = false;
-        audioLevel(stream);
-        calculateAudioLevels();
-    } catch (err) {
-        console.warn("Could not start audio: ", err);
-    }
-});
-
-document.getElementById("stop").addEventListener("click", () => {
-    document.getElementById("stop").disabled = true;
-    localStream.getAudioTracks().forEach(track => track.stop());
-    document.getElementById("start").disabled = false;
-});
-
-function PTT() {
-    elements = document.getElementById("speak");
-    elements.style.backgroundColor="#FF0000";
-    stream.audio.enabled();
-
+for(var i = 0; i< Stream_Channels; i++)
+{
+    console.log($Stream_Channels);
 }
-
-function releasePTT() {
-    elements = document.getElementById("speak");
-    elements.style.backgroundColor="#e7e7e7"
-    stream.audio.disabled();
-}
-*/
-
-// intercom.js
-
 const localAudio = document.getElementById('stream1');
 const remoteAudiosContainer = document.getElementById('remoteAudios') || document.createElement('div');
 
@@ -60,7 +24,7 @@ async function start() {
         localAudio.srcObject = localStream;
 
         // Initiera WebSocket-anslutning till signaleringsservern
-        serverConnection = new WebSocket('ws://192.168.3.220:8080');
+        serverConnection = new WebSocket('ws://localhost:8080');
         serverConnection.onmessage = event => {
             const message = JSON.parse(event.data);
             handleMessage(message);
