@@ -1,6 +1,6 @@
 <?php
 
-$Stream_channels = ["Producer", "Sound", "Lights","GFX"];
+$Stream_channels = ["producer", "sound", "lights","gfx"];
 //$Stream_channels = ["poop"];
 
 ?>
@@ -33,14 +33,13 @@ $Stream_channels = ["Producer", "Sound", "Lights","GFX"];
                 </div>
                 <audio id="'.$channel.'" autoplay></audio>
                 <input type="text" class="talent-text" readonly value="'.$channel.'"></input>
-                <input type="range" min="1" max="100" value="50" class="volume-slider" id="volume">
+                <input type="range" min="1" max="100" value="50" onchange="change_Vol('.$channel.';this.value);w" class="volume-slider" id="'.$channel.'_volume">
             </div>
-            <button class="sidebutton" id="speak" onmousedown="PTT()" onmouseup="releasePTT()">Speak</button>
+            <button class="sidebutton" id="'.$channel.'_PTT" onmousedown="PTT('.$channel.')" onmouseup="releasePTT('.$channel.')">Speak</button>
         </div>';
         }
         ?>
         </div>
-        <audio id="stream1" autoplay></audio>
         <script>
             var Stream_Channels = <?php echo json_encode($Stream_channels);?>;
         </script>

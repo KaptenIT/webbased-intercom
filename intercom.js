@@ -1,8 +1,9 @@
 for(var i = 0; i< Stream_Channels; i++)
 {
-    console.log($Stream_Channels);
+    console.log(Stream_Channels);
 }
-const localAudio = document.getElementById('stream1');
+const localAudio = document.getElementById('producer');
+//console.log(localAudio);
 const remoteAudiosContainer = document.getElementById('remoteAudios') || document.createElement('div');
 
 let localStream;
@@ -22,9 +23,8 @@ async function start() {
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         localAudio.srcObject = localStream;
-
         // Initiera WebSocket-anslutning till signaleringsservern
-        serverConnection = new WebSocket('ws://localhost:8080');
+        serverConnection = new WebSocket('ws://localhost:8080'); //change this to server-IP?
         serverConnection.onmessage = event => {
             const message = JSON.parse(event.data);
             handleMessage(message);
@@ -138,7 +138,7 @@ function generateUniquePeerId() {
 }
 
 // Functions for PTT and other controls (example implementations)
-function PTT() {
+function PTT(channel) {
     // Handle Push-To-Talk functionality
 }
 
@@ -152,4 +152,9 @@ function listen_to_channel() {
 
 function change_color() {
     // Handle color change functionality
+}
+
+
+function change_Vol(channel, new_value) {
+    console.log("new_value");
 }
