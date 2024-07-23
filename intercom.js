@@ -1,6 +1,6 @@
-for(var i = 0; i< Stream_Channels; i++)
+for(var i = 0; i< stream_Channels; i++)
 {
-    console.log(Stream_Channels);
+    console.log(stream_Channels);
 }
 const localAudio = document.getElementById('producer');
 //console.log(localAudio);
@@ -146,7 +146,14 @@ function releasePTT() {
     // Handle release of Push-To-Talk functionality
 }
 
-function listen_to_channel() {
+function listen_to_channel(channel) {
+
+    if(channel.muted = false) {
+        channel.muted = true;
+    }
+    else{
+        channel.muted = false;
+    }
     // Handle listen functionality
 }
 
@@ -156,5 +163,5 @@ function change_color() {
 
 
 function change_Vol(channel, new_value) {
-    console.log("new_value");
+    channel.volume = new_value/100;
 }

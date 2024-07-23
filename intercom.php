@@ -1,6 +1,6 @@
 <?php
 
-$Stream_channels = ["producer", "sound", "lights","gfx"];
+$stream_Channels = ["producer", "sound", "lights","gfx"];
 //$Stream_channels = ["poop"];
 
 ?>
@@ -15,11 +15,11 @@ $Stream_channels = ["producer", "sound", "lights","gfx"];
 
         <div class="control_panel">
         <?php
-        foreach ($Stream_channels as $channel){
+        foreach ($stream_Channels as $channel){
             
         echo'
         <div class="control_per_channel">
-            <button class="sidebutton" id="listen" onclick="listen_to_channel()">Listen</button>
+            <button class="sidebutton" id="listen" onclick="listen_to_channel('.$channel.')">Listen</button>
             <div clas="centercolumn">
                 <div class="lightbar">
                     <span class="bulb" id="bulb-1"></span>
@@ -33,7 +33,7 @@ $Stream_channels = ["producer", "sound", "lights","gfx"];
                 </div>
                 <audio id="'.$channel.'" autoplay></audio>
                 <input type="text" class="talent-text" readonly value="'.$channel.'"></input>
-                <input type="range" min="1" max="100" value="50" onchange="change_Vol('.$channel.';this.value);w" class="volume-slider" id="'.$channel.'_volume">
+                <input type="range" min="0" max="100" value="50" onchange="change_Vol('.$channel.',this.value);" class="volume-slider" id="'.$channel.'_volume">
             </div>
             <button class="sidebutton" id="'.$channel.'_PTT" onmousedown="PTT('.$channel.')" onmouseup="releasePTT('.$channel.')">Speak</button>
         </div>';
@@ -41,7 +41,7 @@ $Stream_channels = ["producer", "sound", "lights","gfx"];
         ?>
         </div>
         <script>
-            var Stream_Channels = <?php echo json_encode($Stream_channels);?>;
+            var stream_Channels = <?php echo json_encode($stream_Channels);?>;
         </script>
         <button id="change_color" onclick="change_color()">change color</button>
         <script src="intercom.js"></script>
